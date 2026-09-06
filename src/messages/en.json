@@ -1,0 +1,42 @@
+{
+  "Navigation": {
+    "home": "Home",
+    "events": "Events",
+    "fits": "Heat Fits",
+    "community": "Heat Club",
+    "gallery": "Gallery",
+    "about": "About",
+    "contact": "Contact"
+  },
+  "Events": {
+    "title": "Events",
+    "description": "Discover upcoming Heat Day and Heat Night events. Secure your tickets early or sign up for the guestlist.",
+    "details": "Details",
+    "guestlist": "Guestlist"
+  },
+  "Hero": {
+    "tagline": "Dress up. Show up. Feel the Heat.",
+    "genres": "Hip-Hop · Afro · R&B · Amapiano",
+    "coming_soon": "New event dates will be announced shortly.",
+    "discover_events": "Discover Events",
+    "join_community": "Join Community",
+    "sound_on": "Start with Sound",
+    "sound_off": "Start Muted"
+  },
+  "About": {
+    "text": "Heat is more than a party. It is the fusion of Hip-Hop, Afro, R&B, Amapiano, fashion, and a community that prepares with intention for every event. Bold looks, incredible people, and an energy that lasts until the final track."
+  },
+  "Community": {
+    "title": "THIS IS HEAT.",
+    "subheadline": "Not an audience. A community.",
+    "text": "Join the exclusive HEAT CLUB to claim guestlist drops, secret releases, and vote on HEAT FITS.",
+    "button": "JOIN THE HEAT CLUB"
+  },
+  "Fits": {
+    "title": "HEAT FITS",
+    "subheadline": "DRESS UP. SHOW UP. BRING THE HEAT.",
+    "description": "Upload your look. Vote for your favorites. The hottest fits can win Guestlist Spots, Fast Lane Access and other HEAT perks.",
+    "upload_btn": "UPLOAD YOUR FIT",
+    "discover_btn": "DISCOVER HEAT FITS"
+  }
+}
