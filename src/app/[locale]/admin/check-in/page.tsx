@@ -10,15 +10,32 @@ export default function CheckInPage() {
   const [scanResult, setScanResult] = useState<'idle' | 'valid' | 'invalid'>('idle');
   const [scannedData, setScannedData] = useState<string>('');
 
-  const handleScanSuccess = (decodedText: string) => {
+  const handleScanSuccess = async (decodedText: string) => {
+    // Only handle if we are currently idle to prevent double scans
+    if (scanResult !== 'idle') return;
+    
     setScannedData(decodedText);
     
-    // Mock Validation Logic: Valid if it starts with 'HEAT-'
-    if (decodedText.startsWith('HEAT-')) {
-      setScanResult('valid');
-      // Here we would normally call a Supabase function to mark the ticket as scanned
-    } else {
+    try {
+      const res = await fetch('/api/admin/check-in', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ qrCode: decodedText })
+      });
+      
+      const data = await res.json();
+      
+      if (res.ok && data.valid) {
+        setScanResult('valid');
+        setScannedData(`${data.buyerName} - ${data.category}`);
+      } else {
+        setScanResult('invalid');
+        setScannedData(data.message || 'Invalid Ticket');
+      }
+    } catch (error) {
+      console.error('Check-in error', error);
       setScanResult('invalid');
+      setScannedData('Network error verifying ticket');
     }
   };
 
@@ -68,10 +85,24 @@ export default function CheckInPage() {
                 <div className="flex gap-2">
                   <input 
                     type="text" 
+                    id="manual-ticket-id"
                     placeholder="Ticket ID (e.g. HEAT-123)"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        handleScanSuccess(e.currentTarget.value);
+                      }
+                    }}
                     className="w-full bg-heat-black border border-heat-chrome-dark p-3 text-white focus:outline-none focus:border-heat-chrome"
                   />
-                  <button className="bg-heat-chrome text-heat-black font-bold uppercase tracking-wider text-xs px-4">
+                  <button 
+                    onClick={() => {
+                      const input = document.getElementById('manual-ticket-id') as HTMLInputElement;
+                      if (input && input.value) {
+                        handleScanSuccess(input.value);
+                      }
+                    }}
+                    className="bg-heat-chrome text-heat-black font-bold uppercase tracking-wider text-xs px-4"
+                  >
                     Check
                   </button>
                 </div>
