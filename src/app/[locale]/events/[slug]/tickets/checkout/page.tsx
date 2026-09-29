@@ -7,6 +7,11 @@ import { useParams, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { Flame, ShieldCheck, UserCheck, Sparkles } from 'lucide-react';
+import { loadStripe } from '@stripe/stripe-js';
+import { Elements } from '@stripe/react-stripe-js';
+import StripeCheckoutForm from '@/components/checkout/StripeCheckoutForm';
+
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || 'pk_test_dummy');
 
 interface TicketData {
   id: string;
@@ -110,13 +115,37 @@ export default function CheckoutPage() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleStep1Submit = (e: React.FormEvent) => {
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
+
+  const handleStep1Submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStep(2);
+
+    // Call API to create Payment Intent
+    try {
+      const res = await fetch('/api/checkout/stripe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          items: cart,
+          eventId: slug,
+          buyerName: `${formData.firstName} ${formData.lastName}`,
+          buyerEmail: formData.email,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to initialize payment');
+      
+      setClientSecret(data.clientSecret);
+    } catch (err: any) {
+      console.error('Payment intent error:', err);
+      toast.error(err.message || 'Error connecting to payment provider');
+      setStep(1);
+    }
   };
 
-  const handlePaymentSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handlePaymentSuccess = async (paymentIntentId: string) => {
     setProcessing(true);
 
     try {
@@ -141,38 +170,18 @@ export default function CheckoutPage() {
         }
       }
 
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      // Call our internal API to save the order
-      const res = await fetch('/api/checkout/save-order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          items: cart,
-          eventId: slug,
-          buyerName: `${formData.firstName} ${formData.lastName}`,
-          buyerEmail: formData.email,
-          totalAmount: totalAmount,
-          paymentProvider: formData.paymentMethod,
-          paymentIntentId: `pi_mock_${Math.random().toString(36).substring(7)}`,
-        }),
-      });
-
-      if (!res.ok) throw new Error('Failed to save order');
-
-      const data = await res.json();
-      setOrderId(data.orderId);
-
-      // Clear cart
+      // Order creation is handled by Webhook. 
+      // We just need to show success state.
       sessionStorage.removeItem('heat_cart');
       setStep(3);
     } catch (error) {
-      console.error('Payment error:', error);
-      toast.error('Payment failed. Please try again.');
+      console.error('Post-payment error:', error);
+      toast.error('An error occurred finishing your order.');
     } finally {
       setProcessing(false);
     }
   };
+
 
   if (loading) {
     return (
@@ -299,37 +308,27 @@ export default function CheckoutPage() {
           )}
 
           {step === 2 && (
-            <form onSubmit={handlePaymentSubmit} className="space-y-6">
-              <h2 className="font-display text-3xl font-bold text-white mb-6 uppercase tracking-widest border-b border-heat-chrome-dark pb-4">
-                Payment Method
-              </h2>
-
-              <div className="space-y-4">
-                <label className="flex items-center space-x-4 border border-heat-chrome-dark p-4 cursor-pointer hover:border-white transition-colors bg-heat-black">
-                  <input type="radio" name="paymentMethod" value="stripe" checked={formData.paymentMethod === 'stripe'} onChange={handleInputChange} required className="text-heat-red" />
-                  <span className="text-white font-bold uppercase tracking-wider">Credit Card / Apple Pay (Mock)</span>
-                </label>
-                <label className="flex items-center space-x-4 border border-heat-chrome-dark p-4 cursor-pointer hover:border-white transition-colors bg-heat-black">
-                  <input type="radio" name="paymentMethod" value="paypal" checked={formData.paymentMethod === 'paypal'} onChange={handleInputChange} required className="text-heat-red" />
-                  <span className="text-white font-bold uppercase tracking-wider">PayPal (Mock)</span>
-                </label>
-              </div>
-
-              <div className="bg-heat-black border border-heat-chrome-dark p-6 mt-8">
-                <p className="text-heat-chrome text-sm mb-4">Total Amount to pay:</p>
-                <p className="text-4xl font-display text-white mb-2">€{totalAmount.toFixed(2)}</p>
-                <p className="text-heat-red text-xs uppercase tracking-widest">Demo Mode - No real charge</p>
-              </div>
-
-              <div className="flex gap-4">
-                <button type="button" onClick={() => setStep(1)} disabled={processing} className="w-1/3 bg-heat-black border border-heat-chrome text-white font-bold uppercase tracking-widest py-4 mt-8 hover:bg-white hover:text-heat-black transition-colors duration-300 disabled:opacity-50">
-                  Back
-                </button>
-                <button type="submit" disabled={processing} className="w-2/3 bg-heat-red text-white font-bold uppercase tracking-widest py-4 mt-8 hover:bg-heat-wine transition-colors duration-300 flex items-center justify-center disabled:opacity-50">
-                  {processing ? 'Processing...' : 'Pay Now'}
-                </button>
-              </div>
-            </form>
+            <div className="space-y-6">
+              {clientSecret ? (
+                <Elements 
+                  stripe={stripePromise} 
+                  options={{ 
+                    clientSecret,
+                    appearance: { theme: 'night' }
+                  }}
+                >
+                  <StripeCheckoutForm 
+                    totalAmount={totalAmount}
+                    onBack={() => setStep(1)}
+                    onSuccess={handlePaymentSuccess}
+                  />
+                </Elements>
+              ) : (
+                <div className="flex justify-center p-12">
+                  <div className="text-heat-chrome animate-pulse">Initializing Secure Payment...</div>
+                </div>
+              )}
+            </div>
           )}
 
           {step === 3 && (
