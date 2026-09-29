@@ -42,26 +42,28 @@ export default function EventFormModal({ event, onClose }: EventFormModalProps) 
       if (!e.target.files || e.target.files.length === 0) return;
       
       const file = e.target.files[0];
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
-      const filePath = `${fileName}`;
-
       setUploading(true);
 
-      const { error: uploadError } = await supabase.storage
-        .from('events')
-        .upload(filePath, file);
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('bucket', 'events');
 
-      if (uploadError) {
-        throw uploadError;
+      const res = await fetch('/api/admin/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Failed to upload image');
       }
 
-      const { data } = supabase.storage.from('events').getPublicUrl(filePath);
-      setImageUrl(data.publicUrl);
+      const data = await res.json();
+      setImageUrl(data.url);
       toast.success('Image uploaded successfully');
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.error('Error uploading image:', error);
-      toast.error('Error uploading image. Is the "events" bucket public?');
+      toast.error(error.message || 'Error uploading image');
     } finally {
       setUploading(false);
     }
@@ -76,27 +78,27 @@ export default function EventFormModal({ event, onClose }: EventFormModalProps) 
         ...formData,
         image_url: imageUrl,
         updated_at: new Date().toISOString(),
+        ...(event?.id ? { id: event.id } : {}) // Include ID if editing
       };
 
-      if (event?.id) {
-        const { error } = await supabase
-          .from('events')
-          .update(payload)
-          .eq('id', event.id);
-        if (error) throw error;
-        toast.success('Event updated successfully');
-      } else {
-        const { error } = await supabase
-          .from('events')
-          .insert([payload]);
-        if (error) throw error;
-        toast.success('Event created successfully');
+      const res = await fetch('/api/admin/events', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Failed to save event');
       }
 
+      toast.success(event?.id ? 'Event updated successfully' : 'Event created successfully');
       onClose(true);
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.error('Error saving event:', error);
-      toast.error('Failed to save event');
+      toast.error(error.message || 'Failed to save event');
     } finally {
       setLoading(false);
     }

@@ -48,29 +48,27 @@ export default function TicketFormModal({ ticket, eventId, onClose }: TicketForm
         sale_start: formData.sale_start ? new Date(formData.sale_start).toISOString() : null,
         sale_end: formData.sale_end ? new Date(formData.sale_end).toISOString() : null,
         status: formData.status,
+        ...(ticket?.id ? { id: ticket.id } : {}) // Include ID if editing
       };
 
-      if (ticket?.id) {
-        // Update
-        const { error } = await supabase
-          .from('tickets')
-          .update(ticketData)
-          .eq('id', ticket.id);
-        if (error) throw error;
-        toast.success('Ticket updated successfully');
-      } else {
-        // Insert
-        const { error } = await supabase
-          .from('tickets')
-          .insert([ticketData]);
-        if (error) throw error;
-        toast.success('Ticket created successfully');
+      const res = await fetch('/api/admin/tickets', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(ticketData)
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Failed to save ticket');
       }
 
+      toast.success(ticket?.id ? 'Ticket updated successfully' : 'Ticket created successfully');
       onClose(true);
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.error('Error saving ticket:', error);
-      toast.error('Failed to save ticket');
+      toast.error(error.message || 'Failed to save ticket');
     } finally {
       setLoading(false);
     }
