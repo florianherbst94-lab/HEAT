@@ -58,13 +58,9 @@ export const TicketEmail = ({
         <Body className="bg-heatBlack text-white font-sans m-0 p-4">
           <Container className="bg-heatAnthracite border border-heatChromeDark p-6 mx-auto max-w-[600px] mt-8 mb-8 rounded-sm">
             <Section className="text-center mb-8 border-b border-heatChromeDark pb-6">
-              <Img
-                src="https://heatdresden.de/media/logo.png"
-                width="120"
-                height="auto"
-                alt="HEAT"
-                className="mx-auto"
-              />
+              <Text className="text-4xl font-display text-heatRed font-bold tracking-widest uppercase m-0 flex items-center justify-center gap-2">
+                H<span style={{ fontSize: '1.2em' }}>♥</span>AT
+              </Text>
             </Section>
 
             <Heading className="text-2xl font-bold font-display text-white mb-4 uppercase tracking-widest text-center">
