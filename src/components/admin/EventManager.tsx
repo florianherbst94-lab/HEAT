@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Calendar, MapPin, Plus, Edit2, Archive, CheckCircle } from 'lucide-react';
+import { Calendar, MapPin, Plus, Edit2, Archive, CheckCircle, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import EventFormModal from './EventFormModal';
@@ -49,6 +49,29 @@ export default function EventManager() {
   const handleEdit = (event: Event) => {
     setEditingEvent(event);
     setIsModalOpen(true);
+  };
+
+  const handleDelete = async (eventId: string) => {
+    if (!window.confirm('Are you sure you want to delete this event? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/admin/events?id=${eventId}`, {
+        method: 'DELETE',
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Failed to delete event');
+      }
+
+      toast.success('Event deleted successfully');
+      fetchEvents();
+    } catch (error: any) {
+      console.error('Delete event error:', error);
+      toast.error(error.message || 'Error deleting event');
+    }
   };
 
   const handleAddNew = () => {
@@ -134,8 +157,16 @@ export default function EventManager() {
                       <button
                         onClick={() => handleEdit(event)}
                         className="p-2 text-heat-chrome hover:text-white transition-colors"
+                        title="Edit Event"
                       >
                         <Edit2 className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(event.id)}
+                        className="p-2 text-heat-chrome hover:text-heat-red transition-colors"
+                        title="Delete Event"
+                      >
+                        <Trash2 className="w-4 h-4" />
                       </button>
                     </td>
                   </tr>

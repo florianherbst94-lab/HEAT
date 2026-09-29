@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Plus, Edit2, Ticket, TrendingUp, CreditCard } from 'lucide-react';
+import { Plus, Edit2, Ticket, TrendingUp, CreditCard, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import TicketFormModal from './TicketFormModal';
 
@@ -80,6 +80,39 @@ export default function TicketManager() {
   const handleEdit = (ticket: TicketData) => {
     setEditingTicket(ticket);
     setIsModalOpen(true);
+  };
+
+  const handleDelete = async (ticketId: string) => {
+    if (!window.confirm('Are you sure you want to delete this ticket? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/admin/tickets?id=${ticketId}`, {
+        method: 'DELETE',
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Failed to delete ticket');
+      }
+
+      toast.success('Ticket deleted successfully');
+      
+      // Refresh tickets
+      setLoading(true);
+      const { data } = await supabase
+        .from('tickets')
+        .select('*')
+        .eq('event_id', selectedEventId)
+        .order('created_at', { ascending: true });
+      
+      setTickets(data || []);
+      setLoading(false);
+    } catch (error: any) {
+      console.error('Delete ticket error:', error);
+      toast.error(error.message || 'Error deleting ticket');
+    }
   };
 
   const handleAddNew = () => {
@@ -229,8 +262,16 @@ export default function TicketManager() {
                         <button
                           onClick={() => handleEdit(ticket)}
                           className="p-2 text-heat-chrome hover:text-white transition-colors"
+                          title="Edit Ticket"
                         >
                           <Edit2 className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(ticket.id)}
+                          className="p-2 text-heat-chrome hover:text-heat-red transition-colors"
+                          title="Delete Ticket"
+                        >
+                          <Trash2 className="w-4 h-4" />
                         </button>
                       </td>
                     </tr>
