@@ -5,39 +5,42 @@ import { NextRequest, NextResponse } from 'next/server';
 const handleI18nRouting = createMiddleware(routing);
 
 export default function middleware(request: NextRequest) {
-  // Use nextUrl.hostname for reliable hostname matching
-  const hostname = request.nextUrl.hostname;
+  const hostHeader = request.headers.get('host') || '';
+  const xForwardedHost = request.headers.get('x-forwarded-host') || '';
+  const hostname = request.nextUrl.hostname || '';
   
   const isAccessSubdomain = 
     hostname.startsWith('access.') || 
+    hostHeader.startsWith('access.') || 
+    xForwardedHost.startsWith('access.') ||
     hostname === 'access.heatdresden.de' || 
+    hostHeader === 'access.heatdresden.de' || 
+    xForwardedHost === 'access.heatdresden.de' ||
     hostname === 'access.localhost';
 
   if (isAccessSubdomain) {
-    // Check if the path already points to access
     const pathname = request.nextUrl.pathname;
     const isAlreadyAccess = pathname === '/access' || 
                             routing.locales.some(loc => pathname === `/${loc}/access` || pathname.startsWith(`/${loc}/access/`));
                             
     if (!isAlreadyAccess) {
-      // Create a cloned URL to pass to next-intl
-      // This is safer than mutating the original request which might cause inconsistencies
-      const newUrl = request.nextUrl.clone();
-      
+      // Instead of relying purely on next-intl routing for the rewrite, let's rewrite it explicitly first
       const segments = pathname.split('/').filter(Boolean);
       const firstSegment = segments[0];
       
+      let newPath = '';
       if (firstSegment && routing.locales.includes(firstSegment as any)) {
         segments.splice(1, 0, 'access');
-        newUrl.pathname = '/' + segments.join('/');
+        newPath = '/' + segments.join('/');
       } else {
-        newUrl.pathname = pathname === '/' ? '/access' : '/access' + pathname;
+        newPath = pathname === '/' ? '/access' : '/access' + pathname;
       }
       
-      // We create a new request with the modified URL so next-intl processes the new path
-      const modifiedRequest = new NextRequest(newUrl, request);
+      const url = request.nextUrl.clone();
+      url.pathname = newPath;
       
-      return handleI18nRouting(modifiedRequest);
+      // NextResponse.rewrite is the robust way to handle this on Vercel
+      return NextResponse.rewrite(url);
     }
   }
 
@@ -45,6 +48,5 @@ export default function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // Match all pathnames except for api, _next, _vercel and static files
   matcher: ['/((?!api|_next|_vercel|.*\\..*).*)']
 };
