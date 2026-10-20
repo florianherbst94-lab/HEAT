@@ -24,24 +24,14 @@ export default function middleware(request: NextRequest) {
                             routing.locales.some(loc => pathname === `/${loc}/access` || pathname.startsWith(`/${loc}/access/`));
                             
     if (!isAlreadyAccess) {
-      // Instead of mutating request.nextUrl (which next-intl might ignore in production),
-      // we explicitely rewrite using NextResponse.rewrite
-      // This is exactly what we did before but we'll try a simpler URL construction
-      const url = request.nextUrl.clone();
+      // Create a completely new URL and Request object so next-intl processes it as '/access'
+      const newUrl = request.nextUrl.clone();
+      newUrl.pathname = pathname === '/' ? '/access' : '/access' + pathname;
       
-      const segments = pathname.split('/').filter(Boolean);
-      const firstSegment = segments[0];
+      const modifiedRequest = new NextRequest(newUrl, request);
       
-      let newPath = '';
-      if (firstSegment && routing.locales.includes(firstSegment as any)) {
-        segments.splice(1, 0, 'access');
-        newPath = '/' + segments.join('/');
-      } else {
-        newPath = pathname === '/' ? '/access' : '/access' + pathname;
-      }
-      
-      url.pathname = newPath;
-      return NextResponse.rewrite(url);
+      // Let next-intl handle the localized routing based on the new pathname
+      return handleI18nRouting(modifiedRequest);
     }
   }
 
