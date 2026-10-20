@@ -2,13 +2,14 @@ import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { cookies } from 'next/headers';
 
-function checkAdmin() {
-  const adminCookie = cookies().get('admin_session');
+async function checkAdmin() {
+  const cookieStore = await cookies();
+  const adminCookie = cookieStore.get('admin_session');
   return adminCookie?.value === 'authenticated';
 }
 
 export async function GET() {
-  if (!checkAdmin()) {
+  if (!(await checkAdmin())) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -25,7 +26,7 @@ export async function GET() {
 }
 
 export async function DELETE(request: Request) {
-  if (!checkAdmin()) {
+  if (!(await checkAdmin())) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
