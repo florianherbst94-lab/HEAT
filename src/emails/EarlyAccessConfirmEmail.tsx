@@ -5,6 +5,7 @@ import {
   Head,
   Heading,
   Html,
+  Img,
   Link,
   Preview,
   Section,
@@ -49,9 +50,13 @@ export const EarlyAccessConfirmEmail = ({
         <Body className="bg-heatBlack text-white font-sans m-0 p-4">
           <Container className="bg-heatAnthracite border border-heatChromeDark p-6 mx-auto max-w-[600px] mt-8 mb-8 rounded-sm">
             <Section className="text-center mb-8 border-b border-heatChromeDark pb-6">
-              <Text className="text-4xl font-display text-heatRed font-bold tracking-widest uppercase m-0 flex items-center justify-center gap-2">
-                H<span style={{ fontSize: '1.2em' }}>♥</span>AT
-              </Text>
+              <Img 
+                src="https://heatdresden.de/media/logo.png" 
+                width="150" 
+                height="auto" 
+                alt="HEAT Logo" 
+                className="mx-auto" 
+              />
             </Section>
 
             <Heading className="text-2xl font-bold font-display text-white mb-4 uppercase tracking-widest text-center">
