@@ -37,7 +37,12 @@ export default function EarlyAccessManager() {
       .select('*')
       .order('event_date', { ascending: false });
     
-    if (data) setEvents(data);
+    if (data) {
+      setEvents(data);
+      if (data.length > 0 && !selectedEvent) {
+        setSelectedEvent(data[0]);
+      }
+    }
     setLoading(false);
   }
 
