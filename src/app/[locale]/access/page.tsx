@@ -97,6 +97,7 @@ export default function AccessPage() {
       onClick={() => {
         if (!hasInteracted && videoRef.current) {
           videoRef.current.muted = false;
+          videoRef.current.play().catch(e => console.error('Play failed:', e));
           setIsMuted(false);
           setHasInteracted(true);
         }

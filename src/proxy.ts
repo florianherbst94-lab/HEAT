@@ -10,14 +10,12 @@ export default function middleware(request: NextRequest) {
   const xForwardedHost = request.headers.get('x-forwarded-host') || '';
   const hostname = request.nextUrl.hostname || '';
   
+  console.log("PROXY HOSTS:", { hostHeader, xForwardedHost, hostname, url: request.url });
+  
   const isAccessSubdomain = 
-    hostname.startsWith('access.') || 
-    hostHeader.startsWith('access.') || 
-    xForwardedHost.startsWith('access.') ||
-    hostname === 'access.heatdresden.de' || 
-    hostHeader === 'access.heatdresden.de' || 
-    xForwardedHost === 'access.heatdresden.de' ||
-    hostname === 'access.localhost';
+    hostname.includes('access.') || 
+    hostHeader.includes('access.') || 
+    xForwardedHost.includes('access.');
 
   if (isAccessSubdomain) {
     const pathname = request.nextUrl.pathname;
@@ -43,8 +41,7 @@ export default function middleware(request: NextRequest) {
         newUrl.pathname = pathname === '/' ? '/access' : '/access' + pathname;
       }
       
-      const modifiedRequest = new NextRequest(newUrl, request);
-      return handleI18nRouting(modifiedRequest);
+      return NextResponse.rewrite(newUrl);
     }
   }
 
