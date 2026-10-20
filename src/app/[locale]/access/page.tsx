@@ -148,7 +148,7 @@ export default function AccessPage() {
             >
               {/* Header */}
               <h1 className="mb-6 flex justify-center">
-                <img src="/media/logo.png" alt="HEAT" className="h-10 md:h-14 lg:h-16 w-auto drop-shadow-md" />
+                <img src="/media/logo.png" alt="HEAT" className="h-20 md:h-28 lg:h-32 w-auto drop-shadow-md" />
               </h1>
               <p className="text-xs tracking-[0.3em] text-heat-chrome uppercase mb-12">
                 The First Chapter

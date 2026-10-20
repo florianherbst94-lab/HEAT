@@ -31,8 +31,23 @@ export async function POST(request: Request) {
         actualEventId = fallbackEvent.id;
         eventTitle = fallbackEvent.title;
       } else {
-        // If DB is completely empty, use a hardcoded UUID so registration still works
-        actualEventId = '00000000-0000-0000-0000-000000000000';
+        // If DB is completely empty, we MUST return an error because of foreign key constraint
+        // Create a dummy event on the fly if none exists to satisfy foreign key
+        const { data: createdEvent } = await supabaseAdmin
+          .from('events')
+          .insert({
+            title: 'HEAT - The First Access',
+            pre_registration_active: true,
+            event_date: '2026-12-12'
+          })
+          .select()
+          .single();
+          
+        if (createdEvent) {
+          actualEventId = createdEvent.id;
+        } else {
+          return NextResponse.json({ error: 'System is still booting up. No events configured yet.' }, { status: 500 });
+        }
       }
     }
 
