@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Volume2, VolumeX } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 export default function AccessPage() {
@@ -12,8 +13,7 @@ export default function AccessPage() {
   const [status, setStatus] = useState<'idle' | 'success' | 'confirmed'>('idle');
   const [error, setError] = useState('');
   const [isMuted, setIsMuted] = useState(true);
-  const [hasInteracted, setHasInteracted] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
+    const videoRef = useRef<HTMLVideoElement>(null);
   
   const [eventData, setEventData] = useState<{ id: string, date: string, videoUrl: string } | null>(null);
   const videoUrl = eventData?.videoUrl || '/videos/heat-promo.mp4';
@@ -100,32 +100,8 @@ export default function AccessPage() {
 
   return (
     <div 
-      className="relative w-full min-h-[100svh] overflow-hidden -mt-24 cursor-pointer"
-      onClick={() => {
-        if (!hasInteracted && videoRef.current) {
-          videoRef.current.muted = false;
-          videoRef.current.play().catch(e => console.error('Play failed:', e));
-          setIsMuted(false);
-          setHasInteracted(true);
-        }
-      }}
-    >
+      className="relative w-full min-h-[100svh] overflow-hidden -mt-24">
       {/* Background Video */}
-      <AnimatePresence>
-        {!hasInteracted && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="absolute top-8 left-1/2 -translate-x-1/2 z-50 bg-heat-black/40 backdrop-blur-md px-4 py-2 rounded-full border border-heat-chrome-dark flex items-center gap-2 pointer-events-none"
-          >
-            <svg className="w-4 h-4 text-heat-chrome" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
-            </svg>
-            <span className="text-xs text-heat-chrome font-medium tracking-wider uppercase">Tap to unmute</span>
-          </motion.div>
-        )}
-      </AnimatePresence>
       <div className="absolute inset-0 z-0">
         <video ref={videoRef} src={videoUrl} autoPlay loop muted playsInline
           className="object-cover w-full h-full opacity-60"
