@@ -115,8 +115,8 @@ export default function AccessPage() {
               className="w-full max-w-lg flex flex-col items-center text-center"
             >
               {/* Header */}
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-display text-heat-red font-bold tracking-widest uppercase mb-4">
-                H♥AT
+              <h1 className="mb-6 flex justify-center">
+                <img src="/media/logo.png" alt="HEAT" className="h-10 md:h-14 lg:h-16 w-auto drop-shadow-md" />
               </h1>
               <p className="text-xs tracking-[0.3em] text-heat-chrome uppercase mb-12">
                 The First Chapter
