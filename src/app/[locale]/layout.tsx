@@ -21,8 +21,16 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "Heat | Dress up. Show up. Feel the Heat.",
+  title: "HEAT",
   description: "Heat ist mehr als eine Party. Hip-Hop, Afro, R&B, Amapiano.",
+  openGraph: {
+    title: "HEAT | The First Chapter",
+    description: "Heat ist mehr als eine Party. Hip-Hop, Afro, R&B, Amapiano.",
+    url: 'https://heatdresden.de',
+    siteName: 'HEAT',
+    locale: 'de_DE',
+    type: 'website',
+  }
 };
 
 export default async function RootLayout({
@@ -35,7 +43,7 @@ export default async function RootLayout({
   const {locale} = await params;
   
   if (!routing.locales.includes(locale as any)) {
-    notFound();
+    console.log("NOT FOUND LOCALE:", locale, "AVAILABLE LOCALES:", routing.locales); notFound();
   }
  
   const messages = await getMessages();
