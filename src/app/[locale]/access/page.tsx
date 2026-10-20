@@ -86,7 +86,7 @@ export default function AccessPage() {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric'
-  }) : 'TBA';
+  }) : '12.12.2026';
 
   return (
     <div className="relative w-full min-h-[100svh] overflow-hidden -mt-24">
