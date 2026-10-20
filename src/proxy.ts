@@ -1,3 +1,4 @@
+
 import createMiddleware from 'next-intl/middleware';
 import {routing} from './i18n/routing';
 import { NextRequest, NextResponse } from 'next/server';
@@ -20,17 +21,29 @@ export default function middleware(request: NextRequest) {
 
   if (isAccessSubdomain) {
     const pathname = request.nextUrl.pathname;
+    
+    // Check if path already contains /access (e.g. /access, /de/access)
     const isAlreadyAccess = pathname === '/access' || 
                             routing.locales.some(loc => pathname === `/${loc}/access` || pathname.startsWith(`/${loc}/access/`));
                             
     if (!isAlreadyAccess) {
-      // Create a completely new URL and Request object so next-intl processes it as '/access'
+      // Find if the path starts with a locale
+      const pathParts = pathname.split('/').filter(Boolean);
+      const hasLocale = pathParts.length > 0 && routing.locales.includes(pathParts[0] as any);
+      
       const newUrl = request.nextUrl.clone();
-      newUrl.pathname = pathname === '/' ? '/access' : '/access' + pathname;
+      
+      if (hasLocale) {
+        // e.g. /de -> /de/access
+        const locale = pathParts[0];
+        const rest = pathParts.slice(1).join('/');
+        newUrl.pathname = `/${locale}/access` + (rest ? `/${rest}` : '');
+      } else {
+        // e.g. / -> /access
+        newUrl.pathname = pathname === '/' ? '/access' : '/access' + pathname;
+      }
       
       const modifiedRequest = new NextRequest(newUrl, request);
-      
-      // Let next-intl handle the localized routing based on the new pathname
       return handleI18nRouting(modifiedRequest);
     }
   }
