@@ -4,7 +4,11 @@ import { useState, useEffect, useRef } from 'react';
 import { Volume2, VolumeX } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
+import { usePathname } from '@/i18n/routing';
+
 export default function AudioPlayer() {
+  const pathname = usePathname();
+  if (pathname === '/access') return null;
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);

@@ -6,9 +6,10 @@ import TicketManager from '@/components/admin/TicketManager';
 import EventManager from '@/components/admin/EventManager';
 import CommunityManager from '@/components/admin/CommunityManager';
 import AdminGuard from '@/components/admin/AdminGuard';
+import EarlyAccessManager from '@/components/admin/EarlyAccessManager';
 
 export default function AdminPage() {
-  const [activeTab, setActiveTab] = useState<'events' | 'guestlist' | 'tickets' | 'community'>('community');
+  const [activeTab, setActiveTab] = useState<'events' | 'guestlist' | 'tickets' | 'community' | 'early_access'>('community');
 
   return (
     <AdminGuard>
@@ -55,6 +56,17 @@ export default function AdminPage() {
               >
                 Guestlist
               </button>
+
+              <button
+                onClick={() => setActiveTab('early_access')}
+                className={`px-6 py-2.5 text-sm font-bold uppercase tracking-wider transition-colors rounded-sm ${
+                  activeTab === 'early_access'
+                    ? 'bg-heat-chrome text-heat-black'
+                    : 'text-heat-chrome hover:text-white'
+                }`}
+              >
+                Early Access
+              </button>
               <button
                 onClick={() => setActiveTab('tickets')}
                 className={`px-6 py-2.5 text-sm font-bold uppercase tracking-wider transition-colors rounded-sm ${
@@ -75,6 +87,8 @@ export default function AdminPage() {
               <EventManager />
             ) : activeTab === 'guestlist' ? (
               <GuestlistManager />
+            ) : activeTab === 'early_access' ? (
+              <EarlyAccessManager />
             ) : (
               <TicketManager />
             )}

@@ -1,7 +1,11 @@
 import { Link } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
 
+import { usePathname } from '@/i18n/routing';
+
 export default function Footer() {
+  const pathname = usePathname();
+  if (pathname === '/access') return null;
   const t = useTranslations('Navigation');
   
   return (

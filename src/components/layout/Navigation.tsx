@@ -10,6 +10,7 @@ import clsx from 'clsx';
 export default function Navigation({ locale }: { locale: string }) {
   const t = useTranslations('Navigation');
   const pathname = usePathname();
+  if (pathname === '/access') return null;
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
