@@ -10,8 +10,6 @@ export default function middleware(request: NextRequest) {
   const xForwardedHost = request.headers.get('x-forwarded-host') || '';
   const hostname = request.nextUrl.hostname || '';
   
-  console.log("PROXY HOSTS:", { hostHeader, xForwardedHost, hostname, url: request.url });
-  
   const isAccessSubdomain = 
     hostname.includes('access.') || 
     hostHeader.includes('access.') || 
@@ -41,7 +39,15 @@ export default function middleware(request: NextRequest) {
         newUrl.pathname = pathname === '/' ? '/access' : '/access' + pathname;
       }
       
-      return NextResponse.rewrite(newUrl);
+      // We must pass the request through next-intl middleware first, so the locale is correctly attached
+      // But we change the request URL before passing it!
+      const modifiedRequest = new NextRequest(newUrl, request);
+      // Wait, if we return NextResponse.rewrite directly, next-intl won't handle the locale cookies and headers!
+      // This might be breaking Vercel edge. Let's do:
+      const response = handleI18nRouting(modifiedRequest);
+      // We need to rewrite the response to point to our modified URL
+      // Actually, if we just return handleI18nRouting(modifiedRequest), next-intl handles the rewrite.
+      return response;
     }
   }
 
