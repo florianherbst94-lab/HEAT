@@ -1,8 +1,7 @@
-"use client";
-import { Link } from '@/i18n/routing';
-import { useTranslations } from 'next-intl';
 
-import { usePathname } from '@/i18n/routing';
+"use client";
+import { Link, usePathname } from '@/i18n/routing';
+import { useTranslations } from 'next-intl';
 
 export default function Footer() {
   const pathname = usePathname();
@@ -18,35 +17,35 @@ export default function Footer() {
         </div>
         
         <div>
-          <h3 className="text-white font-bold mb-4 uppercase tracking-wider text-sm">Navigation</h3>
+          <h4 className="text-white font-display font-bold uppercase tracking-widest mb-4">Heat</h4>
           <ul className="space-y-2 text-sm">
             <li><Link href="/" className="hover:text-white transition-colors">{t('home')}</Link></li>
             <li><Link href="/events" className="hover:text-white transition-colors">{t('events')}</Link></li>
-            <li><Link href="/community" className="hover:text-white transition-colors">{t('community')}</Link></li>
-            <li><Link href="/gallery" className="hover:text-white transition-colors">{t('gallery')}</Link></li>
+            <li><Link href="/fits" className="hover:text-white transition-colors">{t('fits')}</Link></li>
           </ul>
         </div>
         
         <div>
-          <h3 className="text-white font-bold mb-4 uppercase tracking-wider text-sm">Legal</h3>
+          <h4 className="text-white font-display font-bold uppercase tracking-widest mb-4">Rechtliches</h4>
           <ul className="space-y-2 text-sm">
-            <li><Link href="/imprint" className="hover:text-white transition-colors">Impressum</Link></li>
             <li><Link href="/privacy" className="hover:text-white transition-colors">Datenschutz</Link></li>
-            <li><Link href="/cookies" className="hover:text-white transition-colors">Cookie-Einstellungen</Link></li>
+            <li><Link href="/legal" className="hover:text-white transition-colors">Impressum</Link></li>
+            <li><Link href="/legal" className="hover:text-white transition-colors">AGB</Link></li>
           </ul>
         </div>
         
         <div>
-          <h3 className="text-white font-bold mb-4 uppercase tracking-wider text-sm">Social</h3>
+          <h4 className="text-white font-display font-bold uppercase tracking-widest mb-4">Connect</h4>
           <ul className="space-y-2 text-sm">
-            <li><a href="https://instagram.com" target="_blank" rel="noreferrer" className="hover:text-white transition-colors">Instagram</a></li>
-            <li><a href="https://tiktok.com" target="_blank" rel="noreferrer" className="hover:text-white transition-colors">TikTok</a></li>
-            <li><Link href="/contact" className="hover:text-white transition-colors">{t('contact')}</Link></li>
+            <li><a href="https://instagram.com/heatdresden" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Instagram</a></li>
+            <li><a href="https://tiktok.com/@heatdresden" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">TikTok</a></li>
+            <li><a href="mailto:info@heatdresden.de" className="hover:text-white transition-colors">Contact</a></li>
           </ul>
         </div>
       </div>
-      <div className="container mx-auto px-6 mt-12 pt-6 border-t border-heat-chrome-dark text-xs text-center">
-        &copy; {new Date().getFullYear()} Heat. All rights reserved.
+      
+      <div className="container mx-auto px-6 mt-12 pt-8 border-t border-heat-chrome-dark text-xs text-center">
+        <p>&copy; {new Date().getFullYear()} Heat. All rights reserved.</p>
       </div>
     </footer>
   );
