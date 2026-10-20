@@ -12,6 +12,7 @@ export default function AccessPage() {
   const [status, setStatus] = useState<'idle' | 'success' | 'confirmed'>('idle');
   const [error, setError] = useState('');
   const [isMuted, setIsMuted] = useState(true);
+  const [hasInteracted, setHasInteracted] = useState(false);
   const videoRef = require('react').useRef<HTMLVideoElement>(null);
   
   const [eventData, setEventData] = useState<{ id: string, date: string, videoUrl: string } | null>(null);
@@ -91,8 +92,32 @@ export default function AccessPage() {
   }) : '12.12.2026';
 
   return (
-    <div className="relative w-full min-h-[100svh] overflow-hidden -mt-24">
+    <div 
+      className="relative w-full min-h-[100svh] overflow-hidden -mt-24 cursor-pointer"
+      onClick={() => {
+        if (!hasInteracted && videoRef.current) {
+          videoRef.current.muted = false;
+          setIsMuted(false);
+          setHasInteracted(true);
+        }
+      }}
+    >
       {/* Background Video */}
+      <AnimatePresence>
+        {!hasInteracted && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute top-8 left-1/2 -translate-x-1/2 z-50 bg-heat-black/40 backdrop-blur-md px-4 py-2 rounded-full border border-heat-chrome-dark flex items-center gap-2 pointer-events-none"
+          >
+            <svg className="w-4 h-4 text-heat-chrome" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+            </svg>
+            <span className="text-xs text-heat-chrome font-medium tracking-wider uppercase">Tap to unmute</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
       <div className="absolute inset-0 z-0">
         <video ref={videoRef} src={videoUrl} autoPlay loop muted={isMuted} playsInline
           className="object-cover w-full h-full opacity-60"
@@ -132,28 +157,6 @@ export default function AccessPage() {
               <p className="text-heat-chrome md:text-lg mb-12 max-w-md mx-auto leading-relaxed">
                 Sei der Erste. Erhalte exklusiven Zugang zu unseren günstigsten Ticketpreisen vor dem offiziellen Vorverkaufsstart.
               </p>
-
-              {/* Sound Toggle */}
-              <button 
-                onClick={() => {
-                  if (videoRef.current) {
-                    videoRef.current.muted = !isMuted;
-                    setIsMuted(!isMuted);
-                  }
-                }}
-                className="absolute top-4 right-4 z-50 bg-heat-black/50 backdrop-blur-md p-3 rounded-full border border-heat-chrome-dark hover:border-white transition-colors"
-              >
-                {isMuted ? (
-                  <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" clipRule="evenodd" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
-                  </svg>
-                ) : (
-                  <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
-                  </svg>
-                )}
-              </button>
 
               {/* Form */}
               <div className="w-full bg-heat-anthracite/80 backdrop-blur-md border border-heat-chrome-dark p-8 rounded-sm text-left">
