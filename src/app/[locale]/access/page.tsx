@@ -16,6 +16,14 @@ export default function AccessPage() {
   const videoRef = useRef<HTMLVideoElement>(null);
   
   const [eventData, setEventData] = useState<{ id: string, date: string, videoUrl: string } | null>(null);
+  const videoUrl = eventData?.videoUrl || '/videos/heat-promo.mp4';
+  
+  useEffect(() => {
+    // Force video to play on mount
+    if (videoRef.current) {
+      videoRef.current.play().catch(e => console.error('AutoPlay failed:', e));
+    }
+  }, [videoUrl]);
 
   useEffect(() => {
     // Fetch active pre-registration event
@@ -84,7 +92,6 @@ export default function AccessPage() {
     }
   };
 
-  const videoUrl = eventData?.videoUrl || '/videos/heat-promo.mp4';
   const displayDate = eventData?.date ? new Date(eventData.date).toLocaleDateString('de-DE', {
     day: '2-digit',
     month: '2-digit',
@@ -120,7 +127,7 @@ export default function AccessPage() {
         )}
       </AnimatePresence>
       <div className="absolute inset-0 z-0">
-        <video ref={videoRef} src={videoUrl} autoPlay loop muted={isMuted} playsInline
+        <video ref={videoRef} src={videoUrl} autoPlay loop muted playsInline webkit-playsinline="true"
           className="object-cover w-full h-full opacity-60"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-heat-black/40 via-heat-black/20 to-heat-black/80" />
