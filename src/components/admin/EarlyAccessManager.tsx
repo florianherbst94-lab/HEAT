@@ -2,7 +2,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
 
 
 export default function EarlyAccessManager() {
@@ -16,29 +15,34 @@ export default function EarlyAccessManager() {
 
   async function fetchRegistrations() {
     setLoading(true);
-    // Fetch ALL pre-registrations regardless of event
-    const { data, error } = await supabase
-      .from('pre_registrations')
-      .select('*')
-      .order('created_at', { ascending: false });
-      
-    if (data) setRegistrations(data);
+    try {
+      const res = await fetch('/api/admin/early-access');
+      if (res.ok) {
+        const data = await res.json();
+        setRegistrations(data);
+      }
+    } catch (err) {
+      console.error(err);
+    }
     setLoading(false);
   }
 
   async function deleteRegistration(id: string) {
     if (!confirm('Bist du sicher, dass du diesen Eintrag löschen möchtest?')) return;
     
-    const { error } = await supabase
-      .from('pre_registrations')
-      .delete()
-      .eq('id', id);
+    try {
+      const res = await fetch(`/api/admin/early-access?id=${id}`, {
+        method: 'DELETE'
+      });
       
-    if (error) {
+      if (res.ok) {
+        alert('Eintrag gelöscht');
+        fetchRegistrations();
+      } else {
+        alert('Fehler beim Löschen');
+      }
+    } catch (err) {
       alert('Fehler beim Löschen');
-    } else {
-      alert('Eintrag gelöscht');
-      fetchRegistrations();
     }
   }
 
