@@ -13,15 +13,16 @@ export default function AccessPage() {
   const [status, setStatus] = useState<'idle' | 'success' | 'confirmed'>('idle');
   const [error, setError] = useState('');
   const [isMuted, setIsMuted] = useState(true);
+  const [hasManuallyToggled, setHasManuallyToggled] = useState(false);
     const videoRef = useRef<HTMLVideoElement>(null);
   
   const [eventData, setEventData] = useState<{ id: string, date: string, videoUrl: string } | null>(null);
   const videoUrl = eventData?.videoUrl || '/videos/heat-promo.mp4';
 
   useEffect(() => {
-    // Unmute on first interaction
+    // Unmute on first interaction ONLY if user hasn't manually toggled
     const handleInteraction = () => {
-      if (isMuted && videoRef.current) {
+      if (isMuted && !hasManuallyToggled && videoRef.current) {
         videoRef.current.muted = false;
         setIsMuted(false);
         // Force play just in case
@@ -29,11 +30,13 @@ export default function AccessPage() {
       }
     };
 
-    // Listen to various interactions
-    window.addEventListener('click', handleInteraction, { once: true });
-    window.addEventListener('scroll', handleInteraction, { once: true });
-    window.addEventListener('touchstart', handleInteraction, { once: true });
-    window.addEventListener('keydown', handleInteraction, { once: true });
+    // Only listen if we haven't manually toggled and are still muted
+    if (isMuted && !hasManuallyToggled) {
+      window.addEventListener('click', handleInteraction);
+      window.addEventListener('scroll', handleInteraction);
+      window.addEventListener('touchstart', handleInteraction);
+      window.addEventListener('keydown', handleInteraction);
+    }
 
     return () => {
       window.removeEventListener('click', handleInteraction);
@@ -41,7 +44,7 @@ export default function AccessPage() {
       window.removeEventListener('touchstart', handleInteraction);
       window.removeEventListener('keydown', handleInteraction);
     };
-  }, [isMuted]);
+  }, [isMuted, hasManuallyToggled]);
 
   
   useEffect(() => {
@@ -297,6 +300,7 @@ export default function AccessPage() {
           transition={{ delay: 1 }}
           onClick={(e) => {
             e.stopPropagation();
+            setHasManuallyToggled(true);
             if (videoRef.current) {
               videoRef.current.muted = !isMuted;
               setIsMuted(!isMuted);
