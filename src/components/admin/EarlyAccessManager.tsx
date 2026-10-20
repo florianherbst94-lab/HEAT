@@ -130,7 +130,7 @@ export default function EarlyAccessManager() {
                 <option value="">-- Select an Event --</option>
                 {events.map((ev) => (
                   <option key={ev.id} value={ev.id}>
-                    {ev.title} ({new Date(ev.event_date).toLocaleDateString('de-DE')})
+                    {ev.title} ({ev.event_date ? new Date(ev.event_date).toLocaleDateString('de-DE') : 'No Date'})
                   </option>
                 ))}
               </select>
