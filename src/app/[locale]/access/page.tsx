@@ -16,7 +16,7 @@ export default function AccessPage() {
   const videoRef = useRef<HTMLVideoElement>(null);
   
   const [eventData, setEventData] = useState<{ id: string, date: string, videoUrl: string } | null>(null);
-  const videoUrl = eventData?.videoUrl || 'https://heatdresden.de/videos/heat-promo.mp4';
+  const videoUrl = eventData?.videoUrl || '/videos/heat-promo.mp4';
   
   useEffect(() => {
     // Force video to play on mount
@@ -127,7 +127,7 @@ export default function AccessPage() {
         )}
       </AnimatePresence>
       <div className="absolute inset-0 z-0">
-        <video ref={videoRef} src={videoUrl} autoPlay loop muted playsInline webkit-playsinline="true"
+        <video ref={videoRef} src={videoUrl} autoPlay loop muted playsInline
           className="object-cover w-full h-full opacity-60"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-heat-black/40 via-heat-black/20 to-heat-black/80" />
