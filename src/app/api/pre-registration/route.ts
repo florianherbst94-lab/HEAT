@@ -83,7 +83,7 @@ export async function POST(request: Request) {
 
       if (insertError) {
         console.error('Insert error', insertError);
-        return NextResponse.json({ error: 'Registration failed' }, { status: 500 });
+        return NextResponse.json({ error: 'Registration failed: ' + insertError.message, details: insertError }, { status: 500 });
       }
       registrationId = newReg.id;
     } else {
