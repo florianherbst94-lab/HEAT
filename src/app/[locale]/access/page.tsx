@@ -16,7 +16,7 @@ export default function AccessPage() {
   const videoRef = useRef<HTMLVideoElement>(null);
   
   const [eventData, setEventData] = useState<{ id: string, date: string, videoUrl: string } | null>(null);
-  const videoUrl = eventData?.videoUrl || '/videos/heat-promo.mp4';
+  const videoUrl = eventData?.videoUrl || 'https://heatdresden.de/videos/heat-promo.mp4';
   
   useEffect(() => {
     // Force video to play on mount
@@ -206,7 +206,7 @@ export default function AccessPage() {
                       className="mt-1 appearance-none min-w-[16px] w-4 h-4 border border-heat-chrome-dark bg-heat-black checked:bg-heat-red checked:border-heat-red rounded-sm cursor-pointer relative after:content-[''] after:absolute after:hidden checked:after:block after:left-[4px] after:top-[1px] after:w-[6px] after:h-[10px] after:border-r-2 after:border-b-2 after:border-white after:rotate-45"
                     />
                     <label htmlFor="consent" className="text-xs text-heat-chrome leading-tight cursor-pointer">
-                      Ich bin damit einverstanden, Ticketinformationen und Event-Updates zu erhalten. Ich kann mich jederzeit abmelden. <a href="/privacy" target="_blank" className="underline hover:text-white">Datenschutzerklärung</a>
+                      Ich bin damit einverstanden, Ticketinformationen und Event-Updates zu erhalten. Ich kann mich jederzeit abmelden. <a href="https://heatdresden.de/de/privacy" target="_blank" className="underline hover:text-white">Datenschutzerklärung</a>
                     </label>
                   </div>
 
