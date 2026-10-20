@@ -275,13 +275,29 @@ export default function AccessPage() {
                 Du gehörst zu den Ersten, die erfahren, wann unser exklusiver Ticket-Vorverkauf beginnt.
               </p>
               
+
               <button
-                onClick={() => {
-                  navigator.clipboard.writeText('https://access.heatdresden.de');
-                  alert('Link kopiert!');
+                onClick={async () => {
+                  const shareData = {
+                    title: 'HEAT - The First Chapter',
+                    text: 'Ich stehe auf der exklusiven Liste für das erste HEAT Event. Sichere dir auch Early Access!',
+                    url: 'https://access.heatdresden.de'
+                  };
+                  
+                  if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+                    try {
+                      await navigator.share(shareData);
+                    } catch (err) {
+                      console.error('Error sharing:', err);
+                    }
+                  } else {
+                    navigator.clipboard.writeText(shareData.url);
+                    alert('Link kopiert!');
+                  }
                 }}
                 className="inline-flex items-center gap-2 bg-heat-anthracite border border-heat-chrome-dark hover:border-heat-chrome text-white px-6 py-3 rounded-sm transition-colors text-sm uppercase tracking-wider font-bold"
               >
+
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
                 </svg>
