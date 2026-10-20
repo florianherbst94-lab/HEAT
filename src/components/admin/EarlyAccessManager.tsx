@@ -2,13 +2,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import toast from 'react-hot-toast';
+import { supabase } from '@/lib/supabase';
+
 
 export default function EarlyAccessManager() {
   const [registrations, setRegistrations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const supabase = createClientComponentClient();
+  
 
   useEffect(() => {
     fetchRegistrations();
@@ -35,9 +35,9 @@ export default function EarlyAccessManager() {
       .eq('id', id);
       
     if (error) {
-      toast.error('Fehler beim Löschen');
+      alert('Fehler beim Löschen');
     } else {
-      toast.success('Eintrag gelöscht');
+      alert('Eintrag gelöscht');
       fetchRegistrations();
     }
   }
