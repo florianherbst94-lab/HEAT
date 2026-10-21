@@ -152,7 +152,7 @@ export default function GalleryManager() {
         </div>
         <div>
           <input 
-            type="file" multiple 
+            type="file" multiple={true} 
             accept="image/jpeg, image/png, image/webp"
             className="hidden" 
             ref={fileInputRef}
