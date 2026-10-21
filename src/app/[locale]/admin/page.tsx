@@ -7,9 +7,10 @@ import EventManager from '@/components/admin/EventManager';
 import CommunityManager from '@/components/admin/CommunityManager';
 import AdminGuard from '@/components/admin/AdminGuard';
 import EarlyAccessManager from '@/components/admin/EarlyAccessManager';
+import GalleryManager from '@/components/admin/GalleryManager';
 
 export default function AdminPage() {
-  const [activeTab, setActiveTab] = useState<'events' | 'guestlist' | 'tickets' | 'community' | 'early_access'>('community');
+  const [activeTab, setActiveTab] = useState<'events' | 'guestlist' | 'tickets' | 'community' | 'early_access' | 'gallery'>('community');
 
   return (
     <AdminGuard>
@@ -68,6 +69,16 @@ export default function AdminPage() {
                 Early Access
               </button>
               <button
+                onClick={() => setActiveTab('gallery')}
+                className={`px-6 py-2.5 text-sm font-bold uppercase tracking-wider transition-colors rounded-sm ${
+                  activeTab === 'gallery'
+                    ? 'bg-heat-chrome text-heat-black'
+                    : 'text-heat-chrome hover:text-white'
+                }`}
+              >
+                Gallery
+              </button>
+              <button
                 onClick={() => setActiveTab('tickets')}
                 className={`px-6 py-2.5 text-sm font-bold uppercase tracking-wider transition-colors rounded-sm ${
                   activeTab === 'tickets'
@@ -87,8 +98,10 @@ export default function AdminPage() {
               <EventManager />
             ) : activeTab === 'guestlist' ? (
               <GuestlistManager />
-            ) : activeTab === 'early_access' ? (
+) : activeTab === 'early_access' ? (
               <EarlyAccessManager />
+            ) : activeTab === 'gallery' ? (
+              <GalleryManager />
             ) : (
               <TicketManager />
             )}
