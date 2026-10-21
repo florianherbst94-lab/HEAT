@@ -69,6 +69,7 @@ export async function createOrUpdateMember(payload: {
   whatsapp_opt_in_source?: string;
   email_marketing_opt_in?: boolean;
   terms_accepted?: boolean;
+  status?: 'active' | 'pending';
 }): Promise<HeatMember> {
   const normalizedEmail = payload.email.trim().toLowerCase();
   const now = new Date().toISOString();
