@@ -118,3 +118,26 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
+export async function PUT(request: Request) {
+  if (!(await checkAdmin())) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  try {
+    const { updates } = await request.json();
+    
+    // Updates is an array of { id, display_order }
+    // Using Supabase RPC or multiple updates
+    for (const update of updates) {
+      await supabaseAdmin
+        .from('gallery_images')
+        .update({ display_order: update.display_order })
+        .eq('id', update.id);
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}

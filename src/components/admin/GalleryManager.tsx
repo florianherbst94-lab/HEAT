@@ -15,6 +15,7 @@ export default function GalleryManager() {
   const [images, setImages] = useState<GalleryImage[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [draggedItem, setDraggedItem] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -39,7 +40,6 @@ export default function GalleryManager() {
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
 
-    // Validate size (max 5MB per file)
     const oversized = files.filter(f => f.size > 5 * 1024 * 1024);
     if (oversized.length > 0) {
       alert(`${oversized.length} Bild(er) sind größer als 5 MB und werden nicht hochgeladen.`);
@@ -53,7 +53,6 @@ export default function GalleryManager() {
     
     let successCount = 0;
     
-    // Upload sequentially to avoid overloading the server/database
     for (const file of validFiles) {
       const formData = new FormData();
       formData.append('image', file);
@@ -67,7 +66,7 @@ export default function GalleryManager() {
 
         if (res.ok) {
           successCount++;
-          nextOrder++; // Increment for the next image in the batch
+          nextOrder++; 
         }
       } catch (err) {
         console.error('Upload failed for', file.name);
@@ -80,7 +79,6 @@ export default function GalleryManager() {
     }
     
     if (successCount > 0) {
-      alert(`${successCount} von ${validFiles.length} Bild(ern) erfolgreich hochgeladen!`);
       fetchImages();
     } else {
       alert('Fehler beim Hochladen der Bilder.');
@@ -105,12 +103,52 @@ export default function GalleryManager() {
     }
   }
 
+  const handleDragStart = (index: number) => {
+    setDraggedItem(index);
+  };
+
+  const handleDragEnter = (index: number) => {
+    if (draggedItem === null) return;
+    
+    const newImages = [...images];
+    const draggedImage = newImages[draggedItem];
+    
+    newImages.splice(draggedItem, 1);
+    newImages.splice(index, 0, draggedImage);
+    
+    setDraggedItem(index);
+    setImages(newImages);
+  };
+
+  const handleDragEnd = async () => {
+    setDraggedItem(null);
+    
+    // Create new order array
+    const updates = images.map((img, index) => ({
+      id: img.id,
+      display_order: index
+    }));
+    
+    // Optimistically update local state orders
+    setImages(images.map((img, index) => ({ ...img, display_order: index })));
+
+    try {
+      await fetch('/api/admin/gallery', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ updates }),
+      });
+    } catch (err) {
+      console.error('Failed to save new order');
+    }
+  };
+
   return (
     <div className="space-y-8 animate-fade-in">
       <div className="flex justify-between items-center bg-heat-anthracite border border-heat-chrome-dark p-6 rounded-sm">
         <div>
           <h2 className="text-xl font-bold uppercase tracking-wider mb-1">HEAT Galerie</h2>
-          <p className="text-heat-chrome text-sm">Verwalte die Bilder auf der Startseite und in der Galerie.</p>
+          <p className="text-heat-chrome text-sm">Zieh die Bilder mit der Maus, um ihre Reihenfolge zu ändern.</p>
         </div>
         <div>
           <input 
@@ -126,7 +164,7 @@ export default function GalleryManager() {
             className="flex items-center gap-2 bg-heat-red text-white px-6 py-3 font-bold uppercase tracking-widest text-sm rounded-sm hover:bg-heat-wine transition-colors disabled:opacity-50"
           >
             {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <ImagePlus className="w-4 h-4" />}
-            {uploading ? 'Lädt...' : 'Bild hochladen'}
+            {uploading ? 'Lädt...' : 'Bilder hochladen'}
           </button>
         </div>
       </div>
@@ -142,17 +180,33 @@ export default function GalleryManager() {
             Noch keine Bilder in der Galerie vorhanden.
           </div>
         ) : (
-          images.map((img) => (
-            <div key={img.id} className="group relative aspect-square bg-heat-black border border-heat-chrome-dark rounded-sm overflow-hidden">
+          images.map((img, index) => (
+            <div 
+              key={img.id} 
+              draggable
+              onDragStart={() => handleDragStart(index)}
+              onDragEnter={() => handleDragEnter(index)}
+              onDragEnd={handleDragEnd}
+              onDragOver={(e) => e.preventDefault()}
+              className={`group relative aspect-square bg-heat-black border border-heat-chrome-dark rounded-sm overflow-hidden cursor-move ${draggedItem === index ? 'opacity-50 scale-95' : 'opacity-100'} transition-all duration-200`}
+            >
               <img 
                 src={img.image_url} 
                 alt="Gallery Image" 
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                draggable={false}
               />
-              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-4">
+              
+              {/* Drag Handle Indicator */}
+              <div className="absolute top-2 left-2 bg-black/40 p-1.5 rounded-sm opacity-0 group-hover:opacity-100 transition-opacity">
+                <GripVertical className="w-4 h-4 text-white" />
+              </div>
+              
+              {/* Delete Button */}
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-4 pointer-events-none">
                 <button 
                   onClick={() => deleteImage(img.id)}
-                  className="bg-red-500/20 text-red-400 border border-red-500 hover:bg-red-500 hover:text-white p-3 rounded-full transition-colors"
+                  className="bg-red-500/20 text-red-400 border border-red-500 hover:bg-red-500 hover:text-white p-3 rounded-full transition-colors pointer-events-auto"
                   title="Bild löschen"
                 >
                   <Trash2 className="w-5 h-5" />
