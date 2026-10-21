@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     locale: 'de_DE',
     type: 'website',
   }
-};
+, icons: { icon: '/media/logo.png', apple: '/media/logo.png' } };
 
 export default async function RootLayout({
   children,
