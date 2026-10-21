@@ -249,7 +249,7 @@ export default function AccessPage() {
                 Noch ein Schritt<br />bis zur Heat.
               </h2>
               <p className="text-lg text-heat-chrome mb-12 drop-shadow-md">
-                Überprüfe deinen Posteingang und bestätige deine E-Mail, um deinen Early Access zu sichern.
+                Überprüfe deinen Posteingang (und gegebenenfalls den Spam-Ordner) und bestätige deine E-Mail, um deinen Early Access zu sichern.
               </p>
               <div className="w-16 h-16 border-t-2 border-r-2 border-heat-red rounded-full animate-spin mx-auto opacity-50" />
             </motion.div>
