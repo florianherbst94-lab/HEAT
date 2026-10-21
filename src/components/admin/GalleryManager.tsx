@@ -36,43 +36,54 @@ export default function GalleryManager() {
   }
 
   async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
 
-    // Validate size (e.g. max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      alert('Die Datei ist zu groß (Maximal 5 MB).');
-      return;
+    // Validate size (max 5MB per file)
+    const oversized = files.filter(f => f.size > 5 * 1024 * 1024);
+    if (oversized.length > 0) {
+      alert(`${oversized.length} Bild(er) sind größer als 5 MB und werden nicht hochgeladen.`);
     }
+    
+    const validFiles = files.filter(f => f.size <= 5 * 1024 * 1024);
+    if (validFiles.length === 0) return;
 
     setUploading(true);
-    const formData = new FormData();
-    formData.append('image', file);
+    let nextOrder = images.length > 0 ? Math.max(...images.map(img => img.display_order)) + 1 : 0;
     
-    // Put new images at the end
-    const nextOrder = images.length > 0 ? Math.max(...images.map(img => img.display_order)) + 1 : 0;
-    formData.append('order', nextOrder.toString());
+    let successCount = 0;
+    
+    // Upload sequentially to avoid overloading the server/database
+    for (const file of validFiles) {
+      const formData = new FormData();
+      formData.append('image', file);
+      formData.append('order', nextOrder.toString());
 
-    try {
-      const res = await fetch('/api/admin/gallery', {
-        method: 'POST',
-        body: formData,
-      });
+      try {
+        const res = await fetch('/api/admin/gallery', {
+          method: 'POST',
+          body: formData,
+        });
 
-      if (res.ok) {
-        alert('Bild erfolgreich hochgeladen!');
-        fetchImages();
-      } else {
-        const data = await res.json();
-        alert(data.error || 'Fehler beim Hochladen.');
+        if (res.ok) {
+          successCount++;
+          nextOrder++; // Increment for the next image in the batch
+        }
+      } catch (err) {
+        console.error('Upload failed for', file.name);
       }
-    } catch (err) {
-      alert('Netzwerkfehler beim Hochladen.');
-    } finally {
-      setUploading(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
+    }
+    
+    setUploading(false);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+    
+    if (successCount > 0) {
+      alert(`${successCount} von ${validFiles.length} Bild(ern) erfolgreich hochgeladen!`);
+      fetchImages();
+    } else {
+      alert('Fehler beim Hochladen der Bilder.');
     }
   }
 
@@ -103,7 +114,7 @@ export default function GalleryManager() {
         </div>
         <div>
           <input 
-            type="file" 
+            type="file" multiple 
             accept="image/jpeg, image/png, image/webp"
             className="hidden" 
             ref={fileInputRef}
