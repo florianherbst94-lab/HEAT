@@ -37,7 +37,7 @@ export default function Footer() {
         <div>
           <h4 className="text-white font-display font-bold uppercase tracking-widest mb-4">Connect</h4>
           <ul className="space-y-2 text-sm">
-            <li><a href="https://instagram.com/heatdresden" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Instagram</a></li>
+            <li><a href="https://instagram.com/heat.dresden" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Instagram</a></li>
             <li><a href="https://tiktok.com/@heatdresden" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">TikTok</a></li>
             <li><a href="mailto:info@heatdresden.de" className="hover:text-white transition-colors">Contact</a></li>
           </ul>
