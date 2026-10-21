@@ -1,6 +1,11 @@
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 import { createOrUpdateMember } from '@/lib/community';
+import { Resend } from 'resend';
+import jwt from 'jsonwebtoken';
+import { CommunityConfirmEmail } from '@/emails/CommunityConfirmEmail';
+
+const resend = new Resend(process.env.RESEND_API_KEY || 're_123');
+const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret';
 
 export async function POST(req: Request) {
   try {
@@ -43,31 +48,31 @@ export async function POST(req: Request) {
       whatsapp_opt_in_source: whatsapp_opt_in_source || 'community_signup',
       email_marketing_opt_in,
       terms_accepted,
+      status: 'pending' // DO NOT ACTIVATE YET
     });
 
-    // Set persistent long-term HTTP-only cookie (1 year expiry)
-    const cookieStore = await cookies();
-    cookieStore.set('heat_member_token', member.session_token || '', {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/',
-      maxAge: 365 * 24 * 60 * 60, // 1 year
+    // Create JWT for confirmation
+    const token = jwt.sign(
+      { memberId: member.id, email: member.email },
+      JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+
+    const confirmUrl = `https://heatdresden.de/api/community/confirm?token=${token}`;
+
+    // Send Double-Opt-In Email
+    await resend.emails.send({
+      from: 'Heat Club <club@heatdresden.de>',
+      to: [email],
+      subject: 'HEAT CLUB - Bestätige deine Anmeldung',
+      react: CommunityConfirmEmail({
+        firstName: first_name,
+        confirmLink: confirmUrl,
+      }) as React.ReactElement,
     });
 
-    return NextResponse.json({
-      success: true,
-      member: {
-        id: member.id,
-        member_number: member.member_number,
-        first_name: member.first_name,
-        last_name: member.last_name,
-        email: member.email,
-        instagram: member.instagram,
-        whatsapp_opt_in: member.whatsapp_opt_in,
-        email_marketing_opt_in: member.email_marketing_opt_in,
-      },
-    });
+    // We do NOT set the cookie here yet!
+    return NextResponse.json({ success: true, pending: true });
   } catch (err: any) {
     console.error('Community auth error:', err);
     return NextResponse.json({ error: 'Anmeldung fehlgeschlagen. Bitte versuche es erneut.' }, { status: 500 });

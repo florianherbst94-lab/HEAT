@@ -15,6 +15,7 @@ export default function CommunitySignup() {
   const [instagram, setInstagram] = useState('');
   const [mobileNumber, setMobileNumber] = useState('');
   const [consent, setConsent] = useState(false);
+  const [is18Plus, setIs18Plus] = useState(false);
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<'idle' | 'success'>('idle');
   
@@ -29,6 +30,10 @@ export default function CommunitySignup() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!is18Plus) {
+      alert('Du musst mindestens 18 Jahre alt sein, um dem HEAT CLUB beizutreten.');
+      return;
+    }
     if (!consent) {
       alert('Bitte akzeptiere die Datenschutzbestimmungen.');
       return;
@@ -46,7 +51,9 @@ export default function CommunitySignup() {
           instagram,
           phone: mobileNumber,
           whatsapp_opt_in: true,
-          whatsapp_opt_in_source: 'homepage_signup'
+          whatsapp_opt_in_source: 'homepage_signup',
+          is_18_plus: is18Plus,
+          terms_accepted: consent
         })
       });
       
@@ -174,6 +181,21 @@ export default function CommunitySignup() {
                           className="w-full bg-heat-anthracite/50 backdrop-blur-md border border-heat-chrome-dark px-4 py-3.5 text-white focus:outline-none focus:border-heat-red transition-colors placeholder:text-zinc-600 rounded-sm"
                         />
 
+                        <div className="flex items-start gap-3 mt-4 text-left">
+                          <div className="pt-1">
+                            <input
+                              type="checkbox"
+                              id="club-18plus"
+                              checked={is18Plus}
+                              onChange={(e) => setIs18Plus(e.target.checked)}
+                              className="w-4 h-4 rounded border-heat-chrome-dark bg-heat-black accent-heat-red"
+                              required
+                            />
+                          </div>
+                          <label htmlFor="club-18plus" className="text-xs text-heat-chrome leading-relaxed cursor-pointer">
+                            Ich bestätige, dass ich mindestens 18 Jahre alt bin.*
+                          </label>
+                        </div>
                         <div className="flex items-start gap-3 mt-2 text-left">
                           <div className="pt-1">
                             <input
@@ -216,7 +238,7 @@ export default function CommunitySignup() {
                   Willkommen im Club.
                 </h2>
                 <p className="text-lg text-heat-chrome mb-12">
-                  Deine Anmeldung war erfolgreich.
+                  Wir haben dir eine E-Mail gesendet. Bitte klicke auf den Link in der E-Mail, um deine Anmeldung abzuschließen.
                 </p>
               </motion.div>
             )}

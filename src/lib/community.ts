@@ -21,7 +21,7 @@ export interface HeatMember {
   session_token?: string;
   auth_otp?: string;
   auth_otp_expires_at?: string;
-  status: 'active' | 'suspended' | 'deleted';
+  status: 'active' | 'pending' | 'suspended' | 'deleted';
   created_at: string;
   updated_at: string;
 }
@@ -46,7 +46,7 @@ const demoTestMember: HeatMember = {
   whatsapp_opt_in_source: 'demo_seed',
   email_marketing_opt_in: true,
   email_marketing_opt_in_at: new Date().toISOString(),
-  status: 'active',
+  status: payload.status || 'active',
   created_at: new Date().toISOString(),
   updated_at: new Date().toISOString(),
   session_token: 'demo-test-session-token',
@@ -157,7 +157,7 @@ export async function createOrUpdateMember(payload: {
     email_marketing_opt_in_at: payload.email_marketing_opt_in ? now : null,
     consent_terms_text: 'HEAT Club Terms & Privacy Policy (Accepted upon registration)',
     session_token: sessionToken,
-    status: 'active',
+    status: payload.status || 'active',
     created_at: now,
     updated_at: now,
   };
@@ -200,7 +200,7 @@ export async function createOrUpdateMember(payload: {
     email_marketing_opt_in_at: payload.email_marketing_opt_in ? now : undefined,
     consent_terms_text: 'HEAT Club Terms & Privacy Policy (Accepted upon registration)',
     session_token: sessionToken,
-    status: 'active',
+    status: payload.status || 'active',
     created_at: now,
     updated_at: now,
   };
