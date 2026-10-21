@@ -35,12 +35,32 @@ export default function CommunitySignup() {
     }
     
     setLoading(true);
-    // TODO: Connect to backend API later
-    // For now we just simulate success
-    setTimeout(() => {
+    try {
+      const res = await fetch('/api/community/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          first_name: firstName,
+          last_name: lastName,
+          email,
+          instagram,
+          phone: mobileNumber,
+          whatsapp_opt_in: true,
+          whatsapp_opt_in_source: 'homepage_signup'
+        })
+      });
+      
+      if (res.ok) {
+        setStatus('success');
+      } else {
+        const data = await res.json();
+        alert(data.error || 'Es gab einen Fehler bei der Anmeldung. Bitte versuche es später erneut.');
+      }
+    } catch (err) {
+      alert('Netzwerkfehler. Bitte überprüfe deine Verbindung.');
+    } finally {
       setLoading(false);
-      setStatus('success');
-    }, 1000);
+    }
   };
 
   return (
