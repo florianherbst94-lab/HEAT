@@ -46,7 +46,7 @@ const demoTestMember: HeatMember = {
   whatsapp_opt_in_source: 'demo_seed',
   email_marketing_opt_in: true,
   email_marketing_opt_in_at: new Date().toISOString(),
-  status: payload.status || 'active',
+  status: 'active',
   created_at: new Date().toISOString(),
   updated_at: new Date().toISOString(),
   session_token: 'demo-test-session-token',
