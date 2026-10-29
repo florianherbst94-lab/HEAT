@@ -23,13 +23,22 @@ export async function POST(req: Request) {
 
     let totalAmount = 0;
     
-    tickets?.forEach(ticket => {
+    for (const ticket of (tickets || [])) {
       const qty = items[ticket.id];
       if (qty > 0) {
+        // Check availability
+        const availableQuantity = (ticket.quantity_total || 0) - (ticket.quantity_sold || 0);
+        if (qty > availableQuantity) {
+          return NextResponse.json(
+            { error: `Nicht genügend Tickets für Kategorie "${ticket.category}" verfügbar (nur noch ${availableQuantity} übrig).` },
+            { status: 400 }
+          );
+        }
+
         const fee = ticket.presale_fee_fixed + (ticket.price * (ticket.presale_fee_percent / 100));
         totalAmount += (ticket.price + fee) * qty;
       }
-    });
+    }
 
     if (totalAmount <= 0) {
       return NextResponse.json({ error: 'Invalid amount' }, { status: 400 });
