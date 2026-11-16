@@ -20,6 +20,8 @@ interface TicketData {
     event: {
       title: string;
       date: string;
+      start_time: string;
+      image_url: string;
     }
   };
 }
@@ -48,7 +50,7 @@ export default function TicketSuccessPage() {
             ticket:tickets(name),
             order:orders(
               buyer_name,
-              event:events(title, date)
+              event:events(title, date, start_time, image_url)
             )
           `)
           .eq('order_id', orderId);
@@ -118,13 +120,21 @@ export default function TicketSuccessPage() {
               transition={{ delay: index * 0.1 }}
               className="bg-white p-8 relative overflow-hidden flex flex-col items-center"
             >
-              {/* Ticket Design */}
-              <div className="absolute top-0 left-0 w-full h-2 bg-heat-red" />
+              {/* Event Image Banner */}
+              {ticket.order.event.image_url ? (
+                <div className="w-full h-32 bg-cover bg-center" style={{ backgroundImage: `url(${ticket.order.event.image_url})` }} />
+              ) : (
+                <div className="absolute top-0 left-0 w-full h-2 bg-heat-red" />
+              )}
               
-              <div className="flex flex-col items-center text-center pb-6 border-b border-dashed border-gray-300 w-full">
+              <div className="flex flex-col items-center text-center pb-6 border-b border-dashed border-gray-300 w-full pt-6">
                 <img src="/media/logo.png" alt="Heat Logo" className="h-6 mb-4" style={{ filter: 'invert(1)' }} />
-                <h2 className="font-display text-2xl font-bold text-black uppercase tracking-wider mb-1">Ticket {index + 1}</h2>
-                <p className="text-heat-red font-bold tracking-widest uppercase text-xs">{ticket.ticket.name}</p>
+                <h2 className="font-display text-2xl font-bold text-black uppercase tracking-wider mb-1">{ticket.order.event.title}</h2>
+                <div className="text-black font-bold tracking-widest uppercase text-sm mb-4">
+                  {ticket.order.event.date && new Date(ticket.order.event.date).toLocaleDateString('de-DE')}
+                  {ticket.order.event.start_time && ` | ${ticket.order.event.start_time.substring(0, 5)}`}
+                </div>
+                <p className="text-heat-red font-bold tracking-widest uppercase text-xs">{ticket.ticket.name} - Ticket {index + 1}</p>
                 <p className="text-gray-500 text-xs mt-2">{ticket.order.buyer_name}</p>
               </div>
 

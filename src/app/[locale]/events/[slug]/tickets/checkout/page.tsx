@@ -170,9 +170,18 @@ export default function CheckoutPage() {
         }
       }
 
-      // Order creation is handled by Webhook. 
-      // We just need to show success state.
+      // Order creation is now handled by confirm API route instead of relying solely on webhook. 
+      const res = await fetch('/api/checkout/confirm', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ paymentIntentId }),
+      });
+      const data = await res.json();
+      
+      if (!res.ok) throw new Error(data.error || 'Failed to confirm order');
+
       sessionStorage.removeItem('heat_cart');
+      setOrderId(data.order_id);
       setStep(3);
     } catch (error) {
       console.error('Post-payment error:', error);
