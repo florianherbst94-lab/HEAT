@@ -135,7 +135,7 @@ export async function POST(req: Request) {
     if (process.env.RESEND_API_KEY && process.env.RESEND_API_KEY !== 're_123456789' && process.env.RESEND_API_KEY !== '[SENSITIVE]') {
       const { data: eventDetails } = await supabaseAdmin
         .from('events')
-        .select('title, date')
+        .select('title, date, location_name, city, image_url')
         .eq('id', eventId)
         .single();
         
@@ -151,7 +151,10 @@ export async function POST(req: Request) {
           eventDateStr,
           buyerName,
           ticket.category,
-          ticket.ticketId
+          ticket.ticketId,
+          eventDetails?.location_name || '',
+          eventDetails?.city || '',
+          eventDetails?.image_url || ''
         );
         
         attachments.push({

@@ -24,6 +24,7 @@ interface TicketEmailProps {
     qrCodeUrl: string; // Base64 Data URL or public image URL
     ticketId: string;
   }>;
+  baseUrl?: string;
 }
 
 export const TicketEmail = ({
@@ -31,6 +32,7 @@ export const TicketEmail = ({
   eventName = 'Heat Night',
   eventDate = '05.07.2024',
   tickets = [],
+  baseUrl = 'https://heat-dresden.de',
 }: TicketEmailProps) => {
   return (
     <Html>
@@ -57,10 +59,8 @@ export const TicketEmail = ({
       >
         <Body className="bg-heatBlack text-white font-sans m-0 p-4">
           <Container className="bg-heatAnthracite border border-heatChromeDark p-6 mx-auto max-w-[600px] mt-8 mb-8 rounded-sm">
-            <Section className="text-center mb-8 border-b border-heatChromeDark pb-6">
-              <Text className="text-4xl font-display text-heatRed font-bold tracking-widest uppercase m-0 flex items-center justify-center gap-2">
-                H<span style={{ fontSize: '1.2em' }}>♥</span>AT
-              </Text>
+            <Section className="text-center mb-8 border-b border-heatChromeDark pb-6 pt-4">
+              <Img src={`${baseUrl}/media/logo.png`} alt="HEAT" width="120" className="mx-auto" style={{ filter: 'invert(1)' }} />
             </Section>
 
             <Heading className="text-2xl font-bold font-display text-white mb-4 uppercase tracking-widest text-center">
@@ -88,7 +88,7 @@ export const TicketEmail = ({
                 <Text className="text-lg font-bold text-white uppercase tracking-widest mb-6">{ticket.category}</Text>
                 
                 <div className="bg-white p-4 inline-block rounded-sm mb-4">
-                  <Img src={ticket.qrCodeUrl} width="150" height="150" alt={`QR Code for ticket ${ticket.ticketId}`} className="mx-auto" />
+                  <Img src={`${baseUrl}/api/qrcode?data=${ticket.ticketId}`} width="150" height="150" alt={`QR Code for ticket ${ticket.ticketId}`} className="mx-auto" />
                 </div>
                 
                 <Text className="text-heatChromeDark text-[10px] uppercase tracking-widest">

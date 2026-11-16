@@ -44,23 +44,12 @@ export default function TicketSuccessPage() {
 
     const fetchTickets = async () => {
       try {
-        const { data, error } = await supabase
-          .from('order_items')
-          .select(`
-            id,
-            qr_code,
-            status,
-            ticket:tickets(name, price),
-            order:orders(
-              buyer_name,
-              event:events(title, date, start_time, location_name, city, image_url)
-            )
-          `)
-          .eq('order_id', orderId);
-
-        if (error) throw error;
-        // The data returned by supabase with joins needs a bit of typing help
-        setTickets((data as unknown) as TicketData[]);
+        const res = await fetch(`/api/tickets/order?order_id=${orderId}`);
+        const result = await res.json();
+        
+        if (!res.ok) throw new Error(result.error || 'Failed to fetch tickets');
+        
+        setTickets(result.tickets as TicketData[]);
       } catch (err) {
         console.error('Error fetching tickets:', err);
         toast.error('Failed to load tickets.');
