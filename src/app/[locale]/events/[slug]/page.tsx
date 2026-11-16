@@ -90,7 +90,7 @@ export default function EventDetailPage() {
               {event.date ? new Date(event.date).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' }) : 'TBA'} | {event.city || 'TBA'} | {event.location_name || 'TBA'}
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <Link href="/tickets" className="px-8 py-4 bg-heat-red text-white font-bold uppercase tracking-wider text-sm hover:bg-heat-wine transition-all duration-300">
+              <Link href={`/events/${slug}/tickets`} className="px-8 py-4 bg-heat-red text-white font-bold uppercase tracking-wider text-sm hover:bg-heat-wine transition-all duration-300">
                 Get Tickets
               </Link>
               <Link href={`/events/${slug}/guestlist`} className="px-8 py-4 border border-white text-white font-bold uppercase tracking-wider text-sm hover:bg-white hover:text-heat-black transition-all duration-300">

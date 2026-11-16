@@ -146,11 +146,32 @@ export async function POST(req: Request) {
             .single();
             
           const eventDateStr = eventDetails?.date ? new Date(eventDetails.date).toLocaleDateString('de-DE') : 'TBA';
+          
+          // Generate PDF tickets
+          const { generateTicketPDF } = await import('@/lib/pdf/ticketPdf');
+          const attachments = [];
+          
+          for (let i = 0; i < ticketsForEmail.length; i++) {
+            const ticket = ticketsForEmail[i];
+            const pdfBuffer = await generateTicketPDF(
+              eventDetails?.title || 'Heat Event',
+              eventDateStr,
+              buyerName,
+              ticket.category,
+              ticket.ticketId
+            );
+            
+            attachments.push({
+              filename: `HEAT-Ticket-${i + 1}.pdf`,
+              content: pdfBuffer,
+            });
+          }
             
           await resend.emails.send({
             from: 'Heat Tickets <tickets@heatdresden.de>',
             to: buyerEmail,
             subject: `Deine HEAT Tickets für ${eventDetails?.title || 'das kommende Event'}`,
+            attachments: attachments,
             react: React.createElement(TicketEmail, {
               buyerName: buyerName.split(' ')[0], // First name
               eventName: eventDetails?.title || 'Heat Night',
@@ -158,7 +179,7 @@ export async function POST(req: Request) {
               tickets: ticketsForEmail
             })
           });
-          console.log(`Sent email to ${buyerEmail} for order ${order.id}`);
+          console.log(`Sent email with PDFs to ${buyerEmail} for order ${order.id}`);
         } else {
           console.log('Skipped email sending because RESEND_API_KEY is missing or invalid.');
         }
