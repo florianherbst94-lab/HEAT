@@ -14,6 +14,7 @@ interface TicketData {
   status: string;
   ticket: {
     name: string;
+    price: number;
   };
   order: {
     buyer_name: string;
@@ -21,6 +22,8 @@ interface TicketData {
       title: string;
       date: string;
       start_time: string;
+      location_name: string;
+      city: string;
       image_url: string;
     }
   };
@@ -47,10 +50,10 @@ export default function TicketSuccessPage() {
             id,
             qr_code,
             status,
-            ticket:tickets(name),
+            ticket:tickets(name, price),
             order:orders(
               buyer_name,
-              event:events(title, date, start_time, image_url)
+              event:events(title, date, start_time, location_name, city, image_url)
             )
           `)
           .eq('order_id', orderId);
@@ -118,29 +121,76 @@ export default function TicketSuccessPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
-              className="bg-white p-8 relative overflow-hidden flex flex-col items-center"
+              className="bg-[#111] border border-heat-chrome-dark p-0 relative overflow-hidden flex flex-col w-full max-w-sm mx-auto rounded-sm shadow-2xl"
             >
-              {/* Event Image Banner */}
+              {/* Event Image Header */}
               {ticket.order.event.image_url ? (
-                <div className="w-full h-32 bg-cover bg-center" style={{ backgroundImage: `url(${ticket.order.event.image_url})` }} />
+                <div className="w-full h-40 bg-cover bg-center relative" style={{ backgroundImage: `url(${ticket.order.event.image_url})` }}>
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#111] to-transparent" />
+                </div>
               ) : (
-                <div className="absolute top-0 left-0 w-full h-2 bg-heat-red" />
+                <div className="w-full h-24 bg-heat-red relative">
+                   <div className="absolute inset-0 bg-gradient-to-t from-[#111] to-transparent" />
+                </div>
               )}
               
-              <div className="flex flex-col items-center text-center pb-6 border-b border-dashed border-gray-300 w-full pt-6">
-                <img src="/media/logo.png" alt="Heat Logo" className="h-6 mb-4" style={{ filter: 'invert(1)' }} />
-                <h2 className="font-display text-2xl font-bold text-black uppercase tracking-wider mb-1">{ticket.order.event.title}</h2>
-                <div className="text-black font-bold tracking-widest uppercase text-sm mb-4">
-                  {ticket.order.event.date && new Date(ticket.order.event.date).toLocaleDateString('de-DE')}
-                  {ticket.order.event.start_time && ` | ${ticket.order.event.start_time.substring(0, 5)}`}
+              <div className="px-8 pb-8 pt-2 flex flex-col relative z-10 w-full">
+                {/* Logo & Title */}
+                <div className="flex justify-between items-end mb-6 border-b border-heat-chrome-dark pb-4">
+                   <div>
+                      <h2 className="font-display text-2xl font-bold text-white uppercase tracking-wider leading-none">{ticket.order.event.title}</h2>
+                      <p className="text-heat-chrome text-xs uppercase tracking-widest mt-1">Ticket {index + 1}</p>
+                   </div>
+                   <img src="/media/logo.png" alt="Heat Logo" className="h-5" />
                 </div>
-                <p className="text-heat-red font-bold tracking-widest uppercase text-xs">{ticket.ticket.name} - Ticket {index + 1}</p>
-                <p className="text-gray-500 text-xs mt-2">{ticket.order.buyer_name}</p>
-              </div>
 
-              <div className="flex flex-col items-center pt-6 w-full">
-                <QRCodeGenerator value={ticket.qr_code} size={150} />
-                <p className="mt-4 text-gray-400 font-mono text-[10px] tracking-[0.2em]">{ticket.qr_code.substring(0, 8)}...</p>
+                {/* Info Grid */}
+                <div className="grid grid-cols-2 gap-y-4 gap-x-6 mb-8 text-left w-full">
+                   <div>
+                     <p className="text-gray-500 text-[10px] uppercase tracking-[0.2em] mb-1">Date</p>
+                     <p className="text-white font-bold text-sm tracking-wide">
+                        {ticket.order.event.date ? new Date(ticket.order.event.date).toLocaleDateString('de-DE') : 'TBA'}
+                     </p>
+                   </div>
+                   <div>
+                     <p className="text-gray-500 text-[10px] uppercase tracking-[0.2em] mb-1">Time</p>
+                     <p className="text-white font-bold text-sm tracking-wide">
+                        {ticket.order.event.start_time ? ticket.order.event.start_time.substring(0, 5) : 'TBA'}
+                     </p>
+                   </div>
+                   <div className="col-span-2">
+                     <p className="text-gray-500 text-[10px] uppercase tracking-[0.2em] mb-1">Location</p>
+                     <p className="text-white font-bold text-sm tracking-wide">
+                        {ticket.order.event.location_name || 'TBA'} {ticket.order.event.city ? `, ${ticket.order.event.city}` : ''}
+                     </p>
+                   </div>
+                   <div>
+                     <p className="text-gray-500 text-[10px] uppercase tracking-[0.2em] mb-1">Type</p>
+                     <p className="text-heat-red font-bold text-sm tracking-widest uppercase">
+                        {ticket.ticket.name}
+                     </p>
+                   </div>
+                   <div>
+                     <p className="text-gray-500 text-[10px] uppercase tracking-[0.2em] mb-1">Price</p>
+                     <p className="text-white font-bold text-sm tracking-wide">
+                        {ticket.ticket.price ? `${ticket.ticket.price.toFixed(2).replace('.', ',')}€` : 'Free'}
+                     </p>
+                   </div>
+                   <div className="col-span-2 mt-2">
+                     <p className="text-gray-500 text-[10px] uppercase tracking-[0.2em] mb-1">Name</p>
+                     <p className="text-white font-bold text-sm tracking-wide">
+                        {ticket.order.buyer_name}
+                     </p>
+                   </div>
+                </div>
+
+                {/* QR Code Section */}
+                <div className="flex flex-col items-center justify-center pt-6 border-t border-heat-chrome-dark border-dashed w-full relative">
+                  <div className="bg-white p-3 rounded-sm mb-3 shadow-[0_0_20px_rgba(255,255,255,0.1)]">
+                    <QRCodeGenerator value={ticket.qr_code} size={140} />
+                  </div>
+                  <p className="text-heat-chrome-dark font-mono text-[10px] tracking-[0.3em] uppercase">{ticket.qr_code.substring(0, 12)}</p>
+                </div>
               </div>
 
               {/* Wallet Buttons */}
