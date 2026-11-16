@@ -19,7 +19,7 @@ export async function GET(request: Request) {
       }
     });
 
-    return new NextResponse(qrCodeBuffer, {
+    return new NextResponse(qrCodeBuffer as unknown as BodyInit, {
       headers: {
         'Content-Type': 'image/png',
         'Cache-Control': 'public, max-age=31536000',

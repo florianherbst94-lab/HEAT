@@ -156,7 +156,7 @@ export async function generateTicketPDF(
   
   const drawLabel = (text: string, x: number, y: number) => {
     page.drawText(text.toUpperCase(), {
-      x, y, size: 8, font: helveticaFont, color: rgb(0.5, 0.5, 0.5), letterSpacing: 2
+      x, y, size: 8, font: helveticaFont, color: rgb(0.5, 0.5, 0.5)
     });
   };
 
@@ -207,7 +207,6 @@ export async function generateTicketPDF(
     size: 10,
     font: helveticaFont,
     color: rgb(0.5, 0.5, 0.5),
-    letterSpacing: 3,
   });
 
   // Footer / Rules
@@ -226,7 +225,6 @@ export async function generateTicketPDF(
     size: 12,
     font: helveticaBoldFont,
     color: rgb(1, 1, 1),
-    letterSpacing: 2,
   });
 
   page.drawText('- Please have this ticket ready on your phone or printed.', {
